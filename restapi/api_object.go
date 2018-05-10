@@ -139,7 +139,7 @@ func (obj *api_object) create_object() error {
   }
 
   b, _ := json.Marshal(obj.data)
-  res_str, err := obj.api_client.send_request("POST", obj.path, string(b))
+  res_str, err := obj.api_client.send_request("PATCH", obj.path, string(b))
   if err != nil { return err }
 
   /* We will need to sync state as well as get the object's ID */

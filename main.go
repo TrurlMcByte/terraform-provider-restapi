@@ -3,7 +3,7 @@ package main
 import (
   "github.com/hashicorp/terraform/plugin"
   "github.com/hashicorp/terraform/terraform"
-  "github.com/Mastercard/terraform-provider-restapi/restapi"
+  "github.com/TrurlMcByte/terraform-provider-restapi/restapi"
 )
 
 func main() {
