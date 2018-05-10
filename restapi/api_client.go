@@ -74,13 +74,13 @@ func NewAPIClient (i_uri string, i_insecure bool, i_username string, i_password 
 /* Helper function that handles sending/receiving and handling
    of HTTP data in and out.
    TODO: Handle redirects */
-func (client *api_client) send_request (method string, path string, data string) (string, error) {
-  full_uri := client.uri + path
+func (client *api_client) send_request (method string, path string, data string, ext string) (string, error) {
+  full_uri := client.uri + path + ext
   var req *http.Request
   var err error
 
   if client.debug {
-    log.Printf("api_client.go: method='%s', path='%s', full uri (derived)='%s', data='%s'\n", method, path, full_uri, data)
+    log.Printf("api_client.go: method='%s', path='%s', ext='%s', full uri (derived)='%s', data='%s'\n", method, path, ext, full_uri, data)
   }
 
   buffer := bytes.NewBuffer([]byte(data))

@@ -37,6 +37,11 @@ func resourceRestApi() *schema.Resource {
         Description: "Whether to emit verbose debug output while working with the API object on the server.",
         Optional:    true,
       },
+      "ext": &schema.Schema{
+        Type:        schema.TypeString,
+        Description: "URL extension",
+        Optional:    true,
+      },
       "api_data": &schema.Schema{
         Type:        schema.TypeMap,
 	Elem:        &schema.Schema{ Type: schema.TypeString },
@@ -60,6 +65,7 @@ func make_api_object(d *schema.ResourceData, m interface{}) (*api_object, error)
     d.Id(),
     d.Get("data").(string),
     d.Get("debug").(bool),
+    d.Get("ext").(string),
   )
   return obj, err
 }
@@ -83,7 +89,7 @@ func set_resource_state(obj *api_object, d *schema.ResourceData) {
 func resourceRestApiImport(d *schema.ResourceData, meta interface{}) (imported []*schema.ResourceData, err error) {
   input := d.Id()
   n := strings.LastIndex(input, "/")
-  if n == -1 { return imported, errors.New("Invalid path to import api_object. Must be /<full path from server root>/<object id>") }
+  if n == -1 { return imported, errors.New("Invalid path to import api_object. Must be /<full path from server root>/<object id><ext>") }
 
   path := input[0:n]
   d.Set("path", path)

@@ -13,6 +13,7 @@ type api_object struct {
   api_client           *api_client
   path                 string
   debug                bool
+  ext                  string
   id                   string
 
   /* Set internally */
@@ -21,17 +22,19 @@ type api_object struct {
 }
 
 // Make an api_object to manage a RESTful object in an API
-func NewAPIObject (i_client *api_client, i_path string, i_id string, i_data string, i_debug bool) (*api_object, error) {
+func NewAPIObject (i_client *api_client, i_path string, i_id string, i_data string, i_debug bool, i_ext string) (*api_object, error) {
   if i_debug {
     log.Printf("api_object.go: Constructing debug api_object\n")
     log.Printf(" path: %s\n", i_path)
     log.Printf(" id: %s\n", i_id)
+    log.Printf(" ext: %s\n", i_ext)
   }
 
   obj := api_object{
     api_client: i_client,
     path: i_path,
     debug: i_debug,
+    ext: i_ext,
     id: i_id,
     data: make(map[string]interface{}),
     api_data: make(map[string]interface{}),
@@ -72,6 +75,7 @@ func (obj *api_object) toString() string {
   var buffer bytes.Buffer
   buffer.WriteString(fmt.Sprintf("id: %s\n", obj.id))
   buffer.WriteString(fmt.Sprintf("path: %s\n", obj.path))
+  buffer.WriteString(fmt.Sprintf("ext: %s\n", obj.ext))
   buffer.WriteString(fmt.Sprintf("debug: %t\n", obj.debug))
   buffer.WriteString(fmt.Sprintf("data: %s\n", spew.Sdump(obj.data)))
   buffer.WriteString(fmt.Sprintf("api_data: %s\n", spew.Sdump(obj.api_data)))
@@ -139,7 +143,7 @@ func (obj *api_object) create_object() error {
   }
 
   b, _ := json.Marshal(obj.data)
-  res_str, err := obj.api_client.send_request("PATCH", obj.path, string(b))
+  res_str, err := obj.api_client.send_request("POST", obj.path + obj.ext, string(b))
   if err != nil { return err }
 
   /* We will need to sync state as well as get the object's ID */
@@ -167,7 +171,7 @@ func (obj *api_object) read_object() error {
     return errors.New("Cannot read an object unless the ID has been set.")
   }
 
-  res_str, err := obj.api_client.send_request("GET", obj.path + "/" + obj.id, "")
+  res_str, err := obj.api_client.send_request("GET", obj.path + "/" + obj.id + obj.ext, "")
   if err != nil { return err }
 
   err = obj.update_state(res_str)
@@ -180,7 +184,7 @@ func (obj *api_object) update_object() error {
   }
 
   b, _ := json.Marshal(obj.data)
-  res_str, err := obj.api_client.send_request("PUT", obj.path + "/" + obj.id, string(b))
+  res_str, err := obj.api_client.send_request("PUT", obj.path + "/" + obj.id + obj.ext, string(b))
   if err != nil { return err }
 
   if obj.api_client.write_returns_object {
@@ -199,7 +203,7 @@ func (obj *api_object) delete_object() error {
     return nil
   }
 
-  _, err := obj.api_client.send_request("DELETE", obj.path + "/" + obj.id, "")
+  _, err := obj.api_client.send_request("DELETE", obj.path + "/" + obj.id + obj.ext, "")
   if err != nil { return err }
 
   return nil
